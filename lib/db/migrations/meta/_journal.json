@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1726443359662,
+      "tag": "0000_soft_the_anarchist",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1730080000000,
+      "tag": "0001_portfolio_equities",
+      "breakpoints": false
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1759051028877,
+      "tag": "0002_many_the_hunter",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1759052414694,
+      "tag": "0003_early_cassandra_nova",
+      "breakpoints": true
+    }
+  ]
+}
