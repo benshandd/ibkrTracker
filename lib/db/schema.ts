@@ -273,3 +273,7 @@ export const cashBalances = pgTable(
 
 export type CashBalanceRow = typeof cashBalances.$inferSelect
 export type NewCashBalanceRow = typeof cashBalances.$inferInsert
+
+// --- Transfers parsed from Flex statement ---
+
+// (transfers table removed per revert)

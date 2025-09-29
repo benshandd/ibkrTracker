@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { signToken, verifyToken } from '@/lib/auth/session';
 
-const protectedRoutes = '/dashboard';
+const protectedRoutes = '/overview';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -31,6 +31,10 @@ export async function middleware(request: NextRequest) {
         sameSite: 'lax',
         expires: expiresInOneDay
       });
+      // If logged in and visiting home, send to overview
+      if (pathname === '/') {
+        return NextResponse.redirect(new URL('/overview', request.url));
+      }
     } catch (error) {
       console.error('Error updating session:', error);
       res.cookies.delete('session');

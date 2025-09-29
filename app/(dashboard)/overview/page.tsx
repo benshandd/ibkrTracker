@@ -54,13 +54,66 @@ export default function OverviewPage() {
     return ts.sort().slice(-1)[0]
   }, [data?.positions])
 
+  // Sum of open positions' value in base currency
+  const positionsTotalBase = useMemo(() => {
+    try {
+      const vals = (data?.positions || []).map((u) => {
+        const pos = u.positionValue != null
+          ? u.positionValue
+          : (u.unitMarkPrice != null ? u.unitMarkPrice * u.qty : null)
+        const fx = u.fxToBase ?? 1
+        return pos != null && Number.isFinite(pos) ? (pos as number) * fx : null
+      })
+      const sum = vals.reduce((s, v) => (v != null && Number.isFinite(v) ? s + (v as number) : s), 0)
+      return Number.isFinite(sum) ? sum : null
+    } catch {
+      return null
+    }
+  }, [data?.positions])
+
+  // Cash total in base (prefer server BASE_SUMMARY, else convert per-currency rows)
+  const cashTotalBase = useMemo(() => {
+    const base = (data?.base_ccy || 'USD').toUpperCase()
+    const baseSummary = data?.cash_base_summary
+    if (baseSummary != null && Number.isFinite(baseSummary)) return baseSummary as number
+    const rows = (data?.cash_report || [])
+    const fx = data?.fx_rates_derived || {}
+    const vals = rows.map((r) => {
+      const code = (r.currency || '').toUpperCase()
+      const rate = code === base ? 1 : fx[code]
+      const amt = r.ending_cash
+      return amt != null && rate != null ? amt * rate : null
+    })
+    const sum = vals.reduce((s, v) => (v != null && Number.isFinite(v) ? s + (v as number) : s), 0)
+    return Number.isFinite(sum) ? sum : null
+  }, [data?.cash_report, data?.cash_base_summary, data?.fx_rates_derived, data?.base_ccy])
+
+  const accountTotalBase = useMemo(() => {
+    if (positionsTotalBase == null && cashTotalBase == null) return null
+    const p = positionsTotalBase || 0
+    const c = cashTotalBase || 0
+    const total = p + c
+    return Number.isFinite(total) ? total : null
+  }, [positionsTotalBase, cashTotalBase])
+
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Portfolio Trades</h1>
+        <h1 className="text-xl font-semibold">Portfolio</h1>
         <div className="flex items-center gap-3 text-sm">
           <div className="text-muted-foreground">Base: {data?.base_ccy || 'USD'}</div>
           <div className="text-muted-foreground">Statement: {data?.as_of_statement || '—'}</div>
+          <div className="flex items-center">
+            <div className="ml-2 border rounded px-3 py-1 bg-background">
+              <div className="text-[10px] uppercase text-muted-foreground">Account Value</div>
+              <div className="text-sm font-medium">
+                {accountTotalBase != null
+                  ? new Intl.NumberFormat(undefined, { style: 'currency', currency: data?.base_ccy || 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(accountTotalBase)
+                  : '—'}
+              </div>
+            </div>
+          </div>
+          
           <Button variant="outline" onClick={async () => { await fetch('/api/positions/refresh', { method: 'POST' }); mutate() }} disabled={isLoading}>
             {isLoading ? (
               <>
@@ -89,7 +142,7 @@ export default function OverviewPage() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Open Positions (Summary)</h2>
+          <h2 className="text-lg font-semibold">Open Positions</h2>
           <div className="w-full max-w-sm">
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -97,15 +150,12 @@ export default function OverviewPage() {
             </div>
           </div>
         </div>
-        <OpenPositionsTable positions={data?.positions || []} baseCcy={data?.base_ccy || 'USD'} query={query} />
+        <OpenPositionsTable positions={data?.positions || []} baseCcy={data?.base_ccy || 'USD'} query={query} accountTotalBase={accountTotalBase ?? null} />
       </section>
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Cash Balances</h2>
-          <div className="text-sm text-muted-foreground">
-            Reporting currency: {data?.base_ccy || 'USD'}
-          </div>
         </div>
         {(() => {
           const reporting = (data?.base_ccy || 'USD').toUpperCase()
@@ -128,7 +178,7 @@ export default function OverviewPage() {
               />
               <div className="text-sm text-muted-foreground flex items-center justify-between">
                 <div>
-                  Total (converted): {Number.isFinite(total) ? new Intl.NumberFormat(undefined, { style: 'currency', currency: reporting }).format(total) : '—'}
+                  Total: {Number.isFinite(total) ? new Intl.NumberFormat(undefined, { style: 'currency', currency: reporting }).format(total) : '—'}
                 </div>
                 <div>
                   BASE_SUMMARY: {baseSummary != null ? new Intl.NumberFormat(undefined, { style: 'currency', currency: reporting }).format(baseSummary) : '—'}

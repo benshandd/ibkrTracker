@@ -60,9 +60,9 @@ function UserMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="flex flex-col gap-1">
         <DropdownMenuItem className="cursor-pointer">
-          <Link href="/dashboard" className="flex w-full items-center">
+          <Link href="/overview" className="flex w-full items-center">
             <Home className="mr-2 h-4 w-4" />
-            <span>Dashboard</span>
+            <span>Overview</span>
           </Link>
         </DropdownMenuItem>
         <form action={handleSignOut} className="w-full">
@@ -79,12 +79,14 @@ function UserMenu() {
 }
 
 function Header() {
+  const { data: user } = useSWR<User>('/api/user', fetcher);
+  const logoHref = user ? '/overview' : '/';
   return (
     <header className="border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center">
-          <CircleIcon className="h-6 w-6 text-orange-500" />
-          <span className="ml-2 text-xl font-semibold text-gray-900">ACME</span>
+        <Link href={logoHref} className="flex items-center">
+          <CircleIcon className="h-6 w-6 text-primary" />
+          <span className="ml-2 text-xl font-semibold text-gray-900">IBKR Tracker</span>
         </Link>
         <div className="flex items-center space-x-4">
           <Suspense fallback={<div className="h-9" />}>

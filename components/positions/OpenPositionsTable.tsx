@@ -47,7 +47,7 @@ type Row = Position
 
 type ColMeta = { align?: 'left' | 'right'; mono?: boolean; colorizePL?: boolean; flex?: boolean }
 
-export function OpenPositionsTable({ positions, baseCcy, query }: { positions: Position[]; baseCcy: string, query?: string }) {
+export function OpenPositionsTable({ positions, baseCcy, query, accountTotalBase }: { positions: Position[]; baseCcy: string, query?: string, accountTotalBase?: number | null }) {
   const rows: Row[] = useMemo(() => {
     const base = (positions || [])
       // non-zero quantity
@@ -119,7 +119,7 @@ export function OpenPositionsTable({ positions, baseCcy, query }: { positions: P
         accessorKey: 'unitCostBasisPrice',
         cell: ({ row }) => (
           <div className="text-right tabular-nums">
-            {row.original.unitCostBasisPrice != null ? fmtCurrency(row.original.unitCostBasisPrice, row.original.posCcy || row.original.currency) : '—'}
+            {row.original.unitCostBasisPrice != null ? fmtCurrencyFixed(row.original.unitCostBasisPrice, row.original.posCcy || row.original.currency, 2) : '—'}
           </div>
         ),
         size: 120,
@@ -133,7 +133,7 @@ export function OpenPositionsTable({ positions, baseCcy, query }: { positions: P
         accessorKey: 'unitMarkPrice',
         cell: ({ row }) => (
           <div className="text-right tabular-nums">
-            {row.original.unitMarkPrice != null ? fmtCurrency(row.original.unitMarkPrice, row.original.posCcy || row.original.currency) : '—'}
+            {row.original.unitMarkPrice != null ? fmtCurrencyFixed(row.original.unitMarkPrice, row.original.posCcy || row.original.currency, 2) : '—'}
           </div>
         ),
         size: 120,
@@ -142,14 +142,42 @@ export function OpenPositionsTable({ positions, baseCcy, query }: { positions: P
         meta: { align: 'right' },
       },
       {
-        id: 'pl_abs',
-        header: 'P/L $',
-        accessorKey: 'pl_abs_computed',
+        id: 'position_base',
+        header: () => `Value (${baseCcy})`,
+        accessorKey: 'position_base_computed',
         accessorFn: (u) => {
-          const plAbs = u.positionValue != null && u.totalCostBasisMoney != null
+          const pos = u.positionValue != null
+            ? u.positionValue
+            : (u.unitMarkPrice != null ? u.unitMarkPrice * u.qty : null)
+          const fx = u.fxToBase ?? 1
+          return pos != null ? pos * fx : null
+        },
+        size: 140,
+        minSize: 130,
+        maxSize: 200,
+        meta: { align: 'right', mono: true },
+        cell: ({ row }) => {
+          const u = row.original
+          const pos = u.positionValue != null
+            ? u.positionValue
+            : (u.unitMarkPrice != null ? u.unitMarkPrice * u.qty : null)
+          const fx = u.fxToBase ?? 1
+          const base = pos != null ? pos * fx : null
+          return (
+            <div className="text-right tabular-nums">{base != null ? fmtCurrencyFixed(base, baseCcy, 2) : '—'}</div>
+          )
+        },
+      },
+      {
+        id: 'pl_abs',
+        header: () => `P/L (${baseCcy})`,
+        accessorKey: 'pl_abs_base_computed',
+        accessorFn: (u) => {
+          const plAbsPos = u.positionValue != null && u.totalCostBasisMoney != null
             ? u.positionValue - u.totalCostBasisMoney
             : (u.unitMarkPrice != null && u.unitCostBasisPrice != null ? (u.unitMarkPrice - u.unitCostBasisPrice) * u.qty : null)
-          return plAbs
+          const fx = u.fxToBase ?? 1
+          return plAbsPos != null ? plAbsPos * fx : null
         },
         size: 120,
         minSize: 120,
@@ -157,12 +185,14 @@ export function OpenPositionsTable({ positions, baseCcy, query }: { positions: P
         meta: { align: 'right', mono: true, colorizePL: true },
         cell: ({ row }) => {
           const u = row.original
-          const plAbs = u.positionValue != null && u.totalCostBasisMoney != null
+          const plAbsPos = u.positionValue != null && u.totalCostBasisMoney != null
             ? u.positionValue - u.totalCostBasisMoney
             : (u.unitMarkPrice != null && u.unitCostBasisPrice != null ? (u.unitMarkPrice - u.unitCostBasisPrice) * u.qty : null)
+          const fx = u.fxToBase ?? 1
+          const plAbsBase = plAbsPos != null ? plAbsPos * fx : null
           return (
-            <div className={`text-right tabular-nums ${numClass(plAbs)}`}>
-              {plAbs != null ? fmtCurrency(plAbs, u.posCcy || u.currency) : '—'}
+            <div className={`text-right tabular-nums ${numClass(plAbsBase)}`}>
+              {plAbsBase != null ? fmtCurrencyFixed(plAbsBase, baseCcy, 2) : '—'}
             </div>
           )
         },
@@ -201,24 +231,44 @@ export function OpenPositionsTable({ positions, baseCcy, query }: { positions: P
       {
         id: 'weight',
         header: 'Weight %',
-        accessorKey: 'weight_pct',
+        accessorKey: 'weight_pct_account',
+        accessorFn: (u) => {
+          const pos = u.positionValue != null
+            ? u.positionValue
+            : (u.unitMarkPrice != null ? u.unitMarkPrice * u.qty : null)
+          const fx = u.fxToBase ?? 1
+          const base = pos != null ? pos * fx : null
+          const total = accountTotalBase ?? null
+          if (base == null || total == null || !Number.isFinite(total) || total === 0) return null
+          return (base as number) / (total as number)
+        },
         size: 110,
         minSize: 110,
         maxSize: 140,
         meta: { align: 'right' },
-        cell: ({ row }) => <div className="text-right tabular-nums">{row.original.weight_pct != null ? fmtPct(row.original.weight_pct) : '—'}</div>,
+        cell: ({ row }) => {
+          const u = row.original
+          const pos = u.positionValue != null
+            ? u.positionValue
+            : (u.unitMarkPrice != null ? u.unitMarkPrice * u.qty : null)
+          const fx = u.fxToBase ?? 1
+          const base = pos != null ? pos * fx : null
+          const total = accountTotalBase ?? null
+          const pct = base != null && total != null && Number.isFinite(total) && total !== 0 ? (base as number) / (total as number) : null
+          return <div className="text-right tabular-nums">{pct != null ? fmtPct(pct) : '—'}</div>
+        },
       },
       {
         id: 'date',
         header: 'Date Added',
         accessorKey: 'date_any',
-        accessorFn: (u) => u.date_open || u.date_added || null,
+        accessorFn: (u) => u.date_open || u.date_added || u.report_date || null,
         size: 140,
         minSize: 120,
         maxSize: 180,
         meta: { align: 'right', mono: true },
         cell: ({ row }) => {
-          const d = row.original.date_open || row.original.date_added
+          const d = row.original.date_open || row.original.date_added || row.original.report_date
           const fmt = (s: string) => {
             const dt = new Date(s)
             if (Number.isNaN(dt.getTime())) return '—'
@@ -328,6 +378,9 @@ function numClass(n?: number | null) {
 
 function fmtCurrency(n: number, ccy?: string | null) {
   return new Intl.NumberFormat(undefined, { style: 'currency', currency: ccy || 'USD', maximumFractionDigits: 4 }).format(n)
+}
+function fmtCurrencyFixed(n: number, ccy?: string | null, digits = 2) {
+  return new Intl.NumberFormat(undefined, { style: 'currency', currency: ccy || 'USD', minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n)
 }
 function fmtPct(x: number) {
   return new Intl.NumberFormat(undefined, { style: 'percent', maximumFractionDigits: 2 }).format(x)

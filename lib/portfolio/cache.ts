@@ -45,6 +45,7 @@ export async function getOpenPositionsCached(userId: number): Promise<{
     // If table is missing (e.g., migrations not yet applied), continue with empty cash set
     cash = []
   }
+  
 
   const lastRows = rows.length ? rows[0].updatedAt : null
   const lastCash = cash.length ? cash[0].updatedAt : null
@@ -194,6 +195,8 @@ export async function refreshOpenPositions(userId: number): Promise<{ updated: n
       } catch (_) {
         // relation might not exist yet — ignore so positions still update
       }
+
+      
     })
 
     return { updated }
