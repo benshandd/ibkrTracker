@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { use, useState, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import { CircleIcon, Home, LogOut } from 'lucide-react';
+import { CircleIcon, LogOut, Settings as SettingsIcon } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { signOut } from '@/app/(login)/actions';
@@ -58,13 +59,14 @@ function UserMenu() {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="flex flex-col gap-1">
+      <DropdownMenuContent align="end" className="flex flex-col gap-1 min-w-48">
         <DropdownMenuItem className="cursor-pointer">
-          <Link href="/overview" className="flex w-full items-center">
-            <Home className="mr-2 h-4 w-4" />
-            <span>Overview</span>
+          <Link href="/settings" className="flex w-full items-center">
+            <SettingsIcon className="mr-2 h-4 w-4" />
+            <span>Settings</span>
           </Link>
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <form action={handleSignOut} className="w-full">
           <button type="submit" className="flex w-full">
             <DropdownMenuItem className="w-full flex-1 cursor-pointer">

@@ -128,15 +128,7 @@ function TeamMembers() {
             <li key={member.id} className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <Avatar>
-                  {/* 
-                    This app doesn't save profile images, but here
-                    is how you'd show them:
-
-                    <AvatarImage
-                      src={member.user.image || ''}
-                      alt={getUserDisplayName(member.user)}
-                    />
-                  */}
+                  <AvatarImage src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${index}`} />
                   <AvatarFallback>
                     {getUserDisplayName(member.user)
                       .split(' ')
@@ -145,17 +137,13 @@ function TeamMembers() {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium">
-                    {getUserDisplayName(member.user)}
-                  </p>
-                  <p className="text-sm text-muted-foreground capitalize">
-                    {member.role}
-                  </p>
+                  <p className="font-medium">{getUserDisplayName(member.user)}</p>
+                  <p className="text-sm text-muted-foreground">{member.user.email}</p>
                 </div>
               </div>
-              {index > 1 ? (
-                <form action={removeAction}>
-                  <input type="hidden" name="memberId" value={member.id} />
+              {member.role !== 'owner' ? (
+                <form action={removeAction} className="space-x-2">
+                  <input type="hidden" name="id" value={member.id} />
                   <Button
                     type="submit"
                     variant="outline"
@@ -239,11 +227,7 @@ function InviteTeamMember() {
           {inviteState?.success && (
             <p className="text-green-500">{inviteState.success}</p>
           )}
-          <Button
-            type="submit"
-            className="bg-orange-500 hover:bg-orange-600 text-white"
-            disabled={isInvitePending || !isOwner}
-          >
+          <Button type="submit" disabled={isInvitePending || !isOwner}>
             {isInvitePending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -285,3 +269,4 @@ export default function SettingsPage() {
     </section>
   );
 }
+

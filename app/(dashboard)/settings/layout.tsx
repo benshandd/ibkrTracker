@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Users, Settings, Shield, Activity, Menu } from 'lucide-react';
 
-export default function DashboardLayout({
+export default function SettingsLayout({
   children
 }: {
   children: React.ReactNode;
@@ -15,10 +15,10 @@ export default function DashboardLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const navItems = [
-    { href: '/dashboard', icon: Users, label: 'Team' },
-    { href: '/dashboard/general', icon: Settings, label: 'General' },
-    { href: '/dashboard/activity', icon: Activity, label: 'Activity' },
-    { href: '/dashboard/security', icon: Shield, label: 'Security' }
+    { href: '/settings/general', icon: Settings, label: 'General' },
+    { href: '/settings/security', icon: Shield, label: 'Security' },
+    { href: '/settings', icon: Users, label: 'Team' },
+    { href: '/settings/activity', icon: Activity, label: 'Activity' },
   ];
 
   return (

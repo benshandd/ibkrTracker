@@ -94,11 +94,7 @@ export default function SecurityPage() {
             {passwordState.success && (
               <p className="text-green-500 text-sm">{passwordState.success}</p>
             )}
-            <Button
-              type="submit"
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-              disabled={isPasswordPending}
-            >
+            <Button type="submit" disabled={isPasswordPending}>
               {isPasswordPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -141,12 +137,7 @@ export default function SecurityPage() {
             {deleteState.error && (
               <p className="text-red-500 text-sm">{deleteState.error}</p>
             )}
-            <Button
-              type="submit"
-              variant="destructive"
-              className="bg-red-600 hover:bg-red-700"
-              disabled={isDeletePending}
-            >
+            <Button type="submit" variant="destructive" disabled={isDeletePending}>
               {isDeletePending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -165,3 +156,4 @@ export default function SecurityPage() {
     </section>
   );
 }
+
