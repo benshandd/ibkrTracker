@@ -9,11 +9,11 @@
     "start": "next start",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "prebuild": "pnpm typecheck",
-    "db:setup": "tsx lib/db/setup.ts",
-    "db:seed": "tsx lib/db/seed.ts",
+    "db:setup": "npx tsx lib/db/setup.ts",
+    "db:seed": "npx tsx lib/db/seed.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx lib/db/migrate.ts && tsx lib/db/rls.ts",
-    "db:fix-rls": "tsx lib/db/rls.ts",
+    "db:migrate": "npx tsx lib/db/migrate.ts && npx tsx lib/db/rls.ts",
+    "db:fix-rls": "npx tsx lib/db/rls.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
@@ -47,8 +47,5 @@
     "tw-animate-css": "^1.3.0",
     "typescript": "^5.8.3",
     "zod": "^3.24.4"
-  },
-  "devDependencies": {
-    "tsx": "^4.19.0"
   }
 }
