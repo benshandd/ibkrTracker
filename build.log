@@ -1,0 +1,57 @@
+
+> @ prebuild /Users/benshand/Documents/Documents - Ben’s MacBook Air/University/dev/2025/September 2025/ibkrTracker
+> pnpm typecheck
+
+
+> @ typecheck /Users/benshand/Documents/Documents - Ben’s MacBook Air/University/dev/2025/September 2025/ibkrTracker
+> tsc --noEmit -p tsconfig.json
+
+
+> @ build /Users/benshand/Documents/Documents - Ben’s MacBook Air/University/dev/2025/September 2025/ibkrTracker
+> next build
+
+   ▲ Next.js 15.4.0-canary.47
+   - Environments: .env
+   - Experiments (use with caution):
+     ✓ nodeMiddleware
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 4.0s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/8) ...
+   Generating static pages (2/8) 
+   Generating static pages (4/8) 
+   Generating static pages (6/8) 
+ ✓ Generating static pages (8/8)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ƒ /                                      43 kB         176 kB
+├ ƒ /_not-found                            162 B         101 kB
+├ ƒ /api/health/db                         162 B         101 kB
+├ ƒ /api/portfolio                         162 B         101 kB
+├ ƒ /api/positions                         162 B         101 kB
+├ ƒ /api/positions/refresh                 162 B         101 kB
+├ ƒ /api/settings/ibkr                     162 B         101 kB
+├ ƒ /api/stripe/checkout                   162 B         101 kB
+├ ƒ /api/stripe/webhook                    162 B         101 kB
+├ ƒ /api/team                              162 B         101 kB
+├ ƒ /api/user                              162 B         101 kB
+├ ƒ /overview                            18.8 kB         134 kB
+├ ƒ /pricing                             1.25 kB         111 kB
+├ ƒ /settings                            5.29 kB         127 kB
+├ ƒ /settings/activity                     162 B         101 kB
+├ ƒ /settings/general                    3.36 kB         119 kB
+├ ƒ /settings/security                   3.16 kB         113 kB
+├ ƒ /sign-in                               138 B         117 kB
+└ ƒ /sign-up                               138 B         117 kB
++ First Load JS shared by all             100 kB
+  ├ chunks/140524da-cca49ccc50827bec.js  53.8 kB
+  ├ chunks/970-eeb59c9e9e2b0cc4.js       44.8 kB
+  └ other shared chunks (total)          1.92 kB
+
+
+ƒ  (Dynamic)  server-rendered on demand
+

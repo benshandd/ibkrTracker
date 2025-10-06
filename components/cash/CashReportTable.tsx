@@ -1,12 +1,7 @@
 "use client"
 
 import { useMemo } from 'react'
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
+import * as ReactTable from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 export type CashRow = {
@@ -40,7 +35,7 @@ function currencyName(code: string) {
 export function CashReportTable({ rows, reportingCcy }: { rows: CashRow[]; reportingCcy: string }) {
   const data: CashRow[] = useMemo(() => rows, [rows])
 
-  const columns: ColumnDef<CashRow>[] = [
+  const columns = [
     {
       header: 'Currency',
       accessorKey: 'currency',
@@ -66,10 +61,10 @@ export function CashReportTable({ rows, reportingCcy }: { rows: CashRow[]; repor
     },
   ]
 
-  const table = useReactTable({
+  const table = ReactTable.useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
+    getCoreRowModel: (ReactTable as any).getCoreRowModel(),
   })
 
   return (
@@ -78,7 +73,7 @@ export function CashReportTable({ rows, reportingCcy }: { rows: CashRow[]; repor
         {table.getHeaderGroups().map((hg) => (
           <TableRow key={hg.id}>
             {hg.headers.map((header) => (
-              <TableHead key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
+              <TableHead key={header.id}>{ReactTable.flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
             ))}
           </TableRow>
         ))}
@@ -94,7 +89,7 @@ export function CashReportTable({ rows, reportingCcy }: { rows: CashRow[]; repor
           table.getRowModel().rows.map((row) => (
             <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                <TableCell key={cell.id}>{ReactTable.flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
               ))}
             </TableRow>
           ))

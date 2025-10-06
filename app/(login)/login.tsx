@@ -13,9 +13,9 @@ import { ActionState } from '@/lib/auth/middleware';
 
 export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect');
-  const priceId = searchParams.get('priceId');
-  const inviteId = searchParams.get('inviteId');
+  const redirect = searchParams?.get('redirect') ?? '';
+  const priceId = searchParams?.get('priceId') ?? '';
+  const inviteId = searchParams?.get('inviteId') ?? '';
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     mode === 'signin' ? signIn : signUp,
     { error: '' }
@@ -32,9 +32,9 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
         </CardHeader>
         <CardContent>
         <form className="space-y-4" action={formAction}>
-          <input type="hidden" name="redirect" value={redirect || ''} />
-          <input type="hidden" name="priceId" value={priceId || ''} />
-          <input type="hidden" name="inviteId" value={inviteId || ''} />
+          <input type="hidden" name="redirect" value={redirect} />
+          <input type="hidden" name="priceId" value={priceId} />
+          <input type="hidden" name="inviteId" value={inviteId} />
           <div>
             <Label
               htmlFor="email"
@@ -117,8 +117,8 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
           <div className="mt-6">
             <Link
               href={`${mode === 'signin' ? '/sign-up' : '/sign-in'}${
-                redirect ? `?redirect=${redirect}` : ''
-              }${priceId ? `&priceId=${priceId}` : ''}`}
+                redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''
+              }${priceId ? `${redirect ? '&' : '?'}priceId=${encodeURIComponent(priceId)}` : ''}`}
               className="w-full inline-flex justify-center py-2 px-4 border rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground border-input"
             >
               {mode === 'signin' ? 'Create an account' : 'Sign in to existing account'}

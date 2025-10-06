@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = 'force-dynamic'
 
 import useSWR from 'swr'
 import { useMemo, useState } from 'react'
@@ -64,7 +65,7 @@ export default function OverviewPage() {
         const fx = u.fxToBase ?? 1
         return pos != null && Number.isFinite(pos) ? (pos as number) * fx : null
       })
-      const sum = vals.reduce((s, v) => (v != null && Number.isFinite(v) ? s + (v as number) : s), 0)
+      const sum = vals.reduce((s: number, v) => (typeof v === 'number' && Number.isFinite(v) ? s + v : s), 0)
       return Number.isFinite(sum) ? sum : null
     } catch {
       return null
@@ -84,7 +85,7 @@ export default function OverviewPage() {
       const amt = r.ending_cash
       return amt != null && rate != null ? amt * rate : null
     })
-    const sum = vals.reduce((s, v) => (v != null && Number.isFinite(v) ? s + (v as number) : s), 0)
+    const sum = vals.reduce((s: number, v) => (typeof v === 'number' && Number.isFinite(v) ? s + v : s), 0)
     return Number.isFinite(sum) ? sum : null
   }, [data?.cash_report, data?.cash_base_summary, data?.fx_rates_derived, data?.base_ccy])
 
@@ -167,7 +168,7 @@ export default function OverviewPage() {
             const converted = r.ending_cash != null && rate != null ? r.ending_cash * rate : null
             return { currency: code, balance: r.ending_cash, balanceInReporting: converted }
           })
-          const total = enriched.reduce((s, r) => (r.balanceInReporting != null ? s + (r.balanceInReporting as number) : s), 0)
+          const total = enriched.reduce((s: number, r) => (typeof r.balanceInReporting === 'number' ? s + r.balanceInReporting : s), 0)
           const baseSummary = data?.cash_base_summary ?? null
           const mismatch = baseSummary != null && Number.isFinite(total) && Math.abs((baseSummary as number) - total) > 0.01
           return (

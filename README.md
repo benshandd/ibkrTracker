@@ -30,7 +30,7 @@ Quick Start
 2) Configure environment
 ```bash
 cp .env.example .env
-# Fill in: POSTGRES_URL, AUTH_SECRET, BASE_URL
+# Fill in: POSTGRES_URL (use Supabase pooler URL), AUTH_SECRET, BASE_URL
 # For portfolio: IBKR_FLEX_TOKEN, IBKR_QUERY_ID, BASE_CCY (default USD)
 # Optional: PORTFOLIO_DEBUG=1 to include diagnostics in /api/portfolio
 # For billing pages: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
@@ -41,8 +41,9 @@ cp .env.example .env
   ```bash
   pnpm db:setup
   ```
-- Option B: Use an existing Postgres
-  - Ensure `.env` has `POSTGRES_URL=postgres://...`
+- Option B: Use an existing Postgres (recommended: Supabase transaction pooler)
+  - Ensure `.env` has `POSTGRES_URL=postgresql://postgres.<ref>:[PASSWORD]@<region>.pooler.supabase.com:6543/postgres`
+  - If migrations fail against the pooler, set `POSTGRES_URL_NON_POOLING` to your direct DB host on port 5432 and try again
 
 Apply migrations:
 ```bash
@@ -82,7 +83,7 @@ How It Works
 Environment Variables
 Copy `.env.example` to `.env` and fill:
 - Core: `BASE_URL`, `AUTH_SECRET`
-- Database: `POSTGRES_URL` (same value may be set to `DATABASE_URL` for tooling compatibility)
+- Database: `POSTGRES_URL` (Supabase pooler URL). Optional: `POSTGRES_URL_NON_POOLING` (direct 5432 host for migrations), `DATABASE_URL` (tooling compatibility)
 - IBKR: `IBKR_FLEX_TOKEN`, `IBKR_QUERY_ID`, `BASE_CCY` (default `USD`), `PRICE_TTL_SECONDS` (quote cache TTL), `IBKR_USER_AGENT` (optional custom UA, defaults to `IBKRFinanceTracker/1.0.0`), `IBKR_FLEX_ENDPOINT` (`web` or `universal`)
 - Pricing: `ALPHAVANTAGE_API_KEY` (required for live pricing), `ALPHAVANTAGE_MAX_PER_REQUEST` (default `5`), `PRICE_USER_AGENT` (optional UA header)
 - Stripe (optional): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`

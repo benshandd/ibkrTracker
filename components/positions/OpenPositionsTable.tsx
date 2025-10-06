@@ -2,14 +2,7 @@
 
 import * as React from 'react'
 import { useMemo } from 'react'
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-} from '@tanstack/react-table'
+import * as ReactTable from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 import { ArrowUpDown } from 'lucide-react'
 
@@ -67,7 +60,7 @@ export function OpenPositionsTable({ positions, baseCcy, query, accountTotalBase
     )
   }, [positions, query])
 
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [sorting, setSorting] = React.useState<any>([])
   const [columnVisibility, setColumnVisibility] = React.useState<Record<string, boolean>>({})
 
   // Breakpoints: xs < 640, sm >=640 <768, md+ >=768
@@ -87,7 +80,7 @@ export function OpenPositionsTable({ positions, baseCcy, query, accountTotalBase
     return () => window.removeEventListener('resize', apply)
   }, [])
 
-  const columns = React.useMemo<ColumnDef<Row>[]>(
+  const columns = React.useMemo(
     () => [
       {
         id: 'ticker',
@@ -284,15 +277,15 @@ export function OpenPositionsTable({ positions, baseCcy, query, accountTotalBase
     [baseCcy]
   )
 
-  const table = useReactTable({
+  const table = ReactTable.useReactTable({
     data: rows,
     columns,
     state: { sorting, columnVisibility },
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     columnResizeMode: 'onChange',
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    getCoreRowModel: (ReactTable as any).getCoreRowModel(),
+    getSortedRowModel: (ReactTable as any).getSortedRowModel(),
   })
 
   // Build grid template columns based on current visible headers/columns
@@ -326,12 +319,12 @@ export function OpenPositionsTable({ positions, baseCcy, query, accountTotalBase
                   className={`px-0 font-normal h-8 w-full ${(h.column.columnDef.meta as ColMeta | undefined)?.align === 'right' ? 'justify-end' : 'justify-start'}`}
                   onClick={h.column.getToggleSortingHandler()}
                 >
-                  {flexRender(h.column.columnDef.header, { column: h.column, table })}
+                  {ReactTable.flexRender(h.column.columnDef.header, h.getContext())}
                   <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                 </Button>
               ) : (
                 <div className={(h.column.columnDef.meta as ColMeta | undefined)?.align === 'right' ? 'w-full text-right' : undefined}>
-                  {flexRender(h.column.columnDef.header, { column: h.column, table })}
+                  {ReactTable.flexRender(h.column.columnDef.header, h.getContext())}
                 </div>
               )}
               {h.column.getCanResize() && (
@@ -357,7 +350,7 @@ export function OpenPositionsTable({ positions, baseCcy, query, accountTotalBase
                     key={cell.id}
                     className={`px-2 py-2 ${cell.column.columnDef.meta?.align === 'right' ? 'text-right' : 'text-left'} ${cell.column.columnDef.meta?.mono ? 'tabular-nums' : ''}`}
                   >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    {ReactTable.flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </div>
                 ))}
               </div>
